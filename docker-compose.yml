@@ -1,5 +1,6 @@
 version: "3"
-
+# I used the following Howto as the basis
+# https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-16-04
 networks:
   proxy:
     external: true
@@ -25,8 +26,8 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /path/to/traefik/traefik.toml:/traefik.toml
-      - /path/to/traefik/acme.json:/acme.json
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
     networks:
       - proxy
     ports:
