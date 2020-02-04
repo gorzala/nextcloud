@@ -6,22 +6,16 @@ networks:
     external: true
   internal:
     external: false
-
-volumes:
-  nextcloud-core:
-  nextcloud-apps:
-  nextcloud-data:
-  nextcloud-config:
-  nextcloud-mysqldir:
-
+    
 services:
   traefik:
-    image: traefik:1.4.4-alpine
-    command: --docker
+    image: traefik:v2.0
+    command: 
+      - "--providers.docker=true"
     container_name: traefik
     hostname: traefik
     labels:
-      - traefik.frontend.rule=Host:monitor.mydomain.com
+      - traefik.frontend.rule=Host:lb-monitor.becheftigt.de
       - traefik.port=8080
     restart: always
     volumes:
@@ -43,13 +37,13 @@ services:
       - mysql
     restart: always
     volumes:
-      - nextcloud-core:/var/www/html
-      - nextcloud-apps:/var/www/html/custom_apps
-      - data:/var/www/html/data
-      - config:/var/www/html/config
+      - ./nextcloud-core:/var/www/html
+      - ./nextcloud-apps:/var/www/html/custom_apps
+      - ./nextcloud-data:/var/www/html/data
+      - ./nextcloud-config:/var/www/html/config
     labels:
       - traefik.backend=nextcloud
-      - traefik.frontend.rule=Host:nextcloud.mydomain.com
+      - traefik.frontend.rule=Host:next.becheftigt.de
       - traefik.docker.network=proxy
       - traefik.port=80
     networks:
@@ -64,7 +58,7 @@ services:
       MYSQL_ROOT_PASSWORD:
     restart: always
     volumes:
-      - mysqldir:/var/lib/mysql
+      - ./nextcloud-mysql:/var/lib/mysql
     networks:
       - internal
     labels:
@@ -74,7 +68,7 @@ services:
     image: adminer:4.3.1-standalone
     labels:
       - traefik.backend=adminer
-      - traefik.frontend.rule=Host:db-admin.mydomain.com
+      - traefik.frontend.rule=Host:db-admin.becheftigt.de
       - traefik.docker.network=proxy
       - traefik.port=8080
     networks:
