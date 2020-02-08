@@ -1,12 +1,4 @@
 version: "3"
-# I used the following Howto as the basis
-# https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-16-04
-networks:
-  proxy:
-    external: true
-  internal:
-    external: false
-    
 services:
   traefik:
     image: "traefik:v2.0.0-rc3"
@@ -28,60 +20,34 @@ services:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  whoami:
-    image: "containous/whoami"
-    container_name: "simple-service"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`next.becheftigt.de`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=mytlschallenge"
-
   nextcloud:
     image: nextcloud
     environment:
       - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=root
+      - MYSQL_USER=nextcloud
     links:
       - mysql
     restart: always
-    volumes:
+    volumes: 
       - ./nextcloud-core:/var/www/html
       - ./nextcloud-apps:/var/www/html/custom_apps
-      - ./nextcloud-data:/var/www/html/data
+      - /mnt/nextcloud-data/:/var/www/html/data
       - ./nextcloud-config:/var/www/html/config
     labels:
-      - traefik.backend=nextcloud
-      - traefik.frontend.rule=Host:next.becheftigt.de
-      - traefik.docker.network=proxy
-      - traefik.port=80
-    networks:
-      - internal
-      - proxy
+      - "traefik.enable=true"
+      - "traefik.http.routers.websecure.rule=Host(`cloud.becheftigt.de`)"
+      - "traefik.http.routers.websecure.entrypoints=websecure"
+      - "traefik.http.routers.websecure.tls.certresolver=mytlschallenge"
     depends_on:
       - mysql
 
   mysql:
     image: mariadb:latest
-    environment:
-      MYSQL_ROOT_PASSWORD:
-    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
       - ./nextcloud-mysql:/var/lib/mysql
-    networks:
-      - internal
-    labels:
-      - traefik.enable=false
- 
-  adminer:
-    image: adminer:4.3.1-standalone
-    labels:
-      - traefik.backend=adminer
-      - traefik.frontend.rule=Host:db-admin.becheftigt.de
-      - traefik.docker.network=proxy
-      - traefik.port=8080
-    networks:
-      - internal
-      - proxy
-    depends_on:
-      - mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
