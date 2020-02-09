@@ -1,0 +1,75 @@
+= Your own nextcloud with office
+
+For a comprehensive explanation how to use this project, I highly recommend to
+read my link:https://project.dancier.net/documentation/howto/nextcloud/index.html[Blog Post].
+
+The impatient ones can try to continue without reading:
+
+
+== Steps without really explanations
+
+IMPORTANT: We are assuming: You have docker, docker-compose installed on your
+           system, or you can do this just now.
+           You have a linux system available that could be reached from the
+           internet. Either directly, or via port forwarding.
+
+
+=== Clone the repo
+
+[source, bash]
+----
+cd <folder where you want the system to be installed>
+git clone git@github.com:gorzala/nextcloud.git
+# do not rename the clone base folder "nextcloud" !
+----
+
+=== Create files for credentials
+
+[source, bash]
+----
+cd nextcloud;
+# I will refer to this folder as <nextcloud-home>
+mv .env-template .env
+----
+
+With an text editor, open the file `<nextcloud-home>.env`.
+
+Provide for the entries proper values:
+
+- `MYSQL_ROOT_PASSWORD` should be set to the value for the root password that is
+  used when MySQL will be initialized.
+- `MYSQL_PASSWORD` should be set to the value that is being used for the
+   nextcloud (logical) database
+
+=== Setup DNS
+
+Assuming you are setting up an Nextcloud Server under `nextcloud.becheftigt.de`
+you have to change the DNS-entry to point to the IP-address (A-Record) of your Server.
+When your server is behind a router, you have to forward traffic to port 443 to the
+server that will run Nextcloud.
+
+=== Start the System
+
+[source, bash]
+----
+cd <nextcloud-home>
+docker-compose up
+----
+
+You will have to wait a while. Without any claim to comprehensivness let me tell
+you what is going on here:
+
+. Docker will realize that is never have downloaded the needed images and start downloading
+. When Docker has downloaded the images, it is starting them in the needed order
+. The configured docker images makes heavy use of volumes. The will realize, that the
+   mount directories one the docker host, does not already exist. Docker will create these
+   folders and will initialize the containers.
+.. Treafik the edge route will detect that the nextcloud container is configured for the
+   host `nextcloud.becheftigt.de`. It will check for an existing certificate, will not
+   find one in the configured volume `letsencrypt` and will try to get a new ssl certificate
+   for you. At this point it is necessary, that the dns of  `nextcloud.becheftigt.de` is pointing to
+   to the ip of your server (at least that traffic to this Ip's port is being forwarded there)
+.. The MySQL container will be initialized. A logical database `nextcloud` will be created. The
+   credentials will be used from the `.env` file from the first step.
+.. Nextcloud will initlizse by copying its standard files in the configured volumes.
+
