@@ -1,3 +1,5 @@
+.idea
+.env
 nextcloud-apps
 nextcloud-config
 nextcloud-core
