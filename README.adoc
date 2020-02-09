@@ -1,4 +1,4 @@
-= Your own nextcloud with office
+= Your own nextcloud with collabora office
 
 For a comprehensive explanation how to use this project, I highly recommend to
 read my link:https://project.dancier.net/documentation/howto/nextcloud/index.html[Blog Post].
@@ -56,7 +56,7 @@ cd <nextcloud-home>
 docker-compose up
 ----
 
-You will have to wait a while. Without any claim to comprehensivness let me tell
+You will have to wait a while. Without any claim to comprehensiveness let me tell
 you what is going on here:
 
 . Docker will realize that is never have downloaded the needed images and start downloading
@@ -71,5 +71,64 @@ you what is going on here:
    to the ip of your server (at least that traffic to this Ip's port is being forwarded there)
 .. The MySQL container will be initialized. A logical database `nextcloud` will be created. The
    credentials will be used from the `.env` file from the first step.
-.. Nextcloud will initlizse by copying its standard files in the configured volumes.
+.. Nextcloud will be initialised by copying its standard files in the configured volumes.
 
+
+You can check the volumes, they should now contain files.
+
+Now it's time to configure you nextcloud installation.
+
+=== Basic Setup
+
+Start configuration from Nextcloud by
+opening link:https://next.cloud.becheftigt.de/[the following page].
+
+As the first user name, take the username you want to use for yourself when using Nextcloud.
+Chose an passwort you want.
+
+Then select Maria/Mysql as the used Database system.
+Provide the following entries:
+
+- database user: nextcloud
+- database name: nextcloud
+- database pass: <the password from the env file, not the root password>
+- database host: mysql:3306
+
+Deselect that option to install the default apps.
+
+Click ok.
+
+It is likely that you will see an error page.
+
+You have to configure something to get it working:
+
+=== Fixing some wrong default configurations
+
+Edit in the config volume the file `config.php`, that it contains the following key-values:
+
+[source, bash]
+----
+'overwritehost' => 'cloud.becheftigt.de',
+'overwriteprotocol' => 'https',
+'overwrite.cli.url' => 'https://cloud.becheftigt.de',
+----
+
+In the core volume change the file `.htaccess` fix the redirection rules (needed for synchronisation with you mobiles).
+
+The rules for the request that start with .well-known* should look like:
+
+[source, bash]
+----
+RewriteRule ^\.well-known/host-meta https://%{HTTP_HOST}/public.php?service=host-meta [QSA,L]
+RewriteRule ^\.well-known/host-meta\.json https://%{HTTP_HOST}/public.php?service=host-meta-json [QSA,L]
+RewriteRule ^\.well-known/webfinger https://%{HTTP_HOST}/public.php?service=webfinger [QSA,L]
+RewriteRule ^\.well-known/nodeinfo https://%{HTTP_HOST}/public.php?service=nodeinfo [QSA,L]
+RewriteRule ^\.well-known/carddav https://%{HTTP_HOST}/remote.php/dav/ [R=301,L]
+RewriteRule ^\.well-known/caldav https://%{HTTP_HOST}/remote.php/dav/ [R=301,L]
+----
+
+=== Further Reading
+If you got all running with this amount of explanation, that congrats! (I would like to know this ;-) )
+If you run into troubles, I would recommend to longer Post on this topic.
+Also if you were lucky, i would recommend reading link:https://project.dancier.net/documentation/howto/nextcloud/index.html[the longer Blog Post]., as it could breaden
+your knowledge about what you have done. Could be especially useful if things break.
