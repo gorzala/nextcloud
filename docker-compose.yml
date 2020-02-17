@@ -4,7 +4,7 @@ services:
     image: "traefik:v2.0.0-rc3"
     container_name: "traefik"
     command:
-      #- "--log.level=DEBUG"
+      - "--log.level=DEBUG"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -35,9 +35,9 @@ services:
       - ./nextcloud-config:/var/www/html/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.websecure.rule=Host(`cloud.becheftigt.de`)"
-      - "traefik.http.routers.websecure.entrypoints=websecure"
-      - "traefik.http.routers.websecure.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.nextcloud.rule=Host(`cloud.becheftigt.de`)"
+      - "traefik.http.routers.nextcloud.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud.tls.certresolver=mytlschallenge"
     depends_on:
       - mysql
 
@@ -51,3 +51,20 @@ services:
       - MYSQL_PASSWORD
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
+
+  collabora:
+    image: collabora/code
+    restart: always
+    environment:
+      - domain=cloud\\.becheftigt\\.de
+      - extra_params=--o:ssl.enable=false --o:ssl.termination=true
+    depends_on:
+      - traefik
+    cap_add:
+      - MKNOD
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collabora.rule=Host(`collabora.becheftigt.de`)"
+      - "traefik.http.routers.collabora.entrypoints=websecure"
+      - "traefik.http.routers.collabora.tls.certresolver=mytlschallenge"
+
