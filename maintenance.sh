@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .backup.config
+source .maintenance.config
 source .env
 
 display_usage() {
