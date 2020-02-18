@@ -35,7 +35,14 @@ backup() {
 
 backup_database() {
   echo "hot backing up the database"
-  echo "docker exec -it nextcloud_mysql_1  mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --single-transaction --routines --triggers nextcloud > /root/backup_db.sql"
+  docker exec -it nextcloud_mysql_1  \
+            mysqldump -u root \
+                      -p"$MYSQL_ROOT_PASSWORD" \
+                      --single-transaction \
+                      --routines \
+                      --triggers \
+                      nextcloud \
+                      > $(realpath ${BACKUP_FOLDER})/${NEXTCLOUD_MYSQL}/nextcloud-dump.sql
   echo "done"
 }
 
