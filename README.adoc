@@ -3,7 +3,7 @@
 For a comprehensive explanation how to use this project, I highly recommend to
 read my link:https://project.dancier.net/documentation/howto/nextcloud/index.html[Blog Post].
 
-The impatient ones can try to continue without reading:
+The impatient ones can try to continue without reading the longer post:
 
 
 == Steps without really explanations
@@ -41,7 +41,20 @@ Provide for the entries proper values:
 - `MYSQL_PASSWORD` should be set to the value that is being used for the
    nextcloud (logical) database
 
-=== Setup DNS
+=== Create Folder Setup
+
+With an text editor, open the file `<nextcloud-home>.maintenance.config` and
+check the values for the following key and change them to match your system:
+
+ * `BASE_FOLDER` should point to the root of the repository that you checked out
+ * `NEXTCLOUD_DATA_FOLDER` should point the folder that will contain
+    the files from your users. On my system I put them onto an external drive
+    and set the value accordingly.
+
+The other folders that are configured in this files, will be resolved
+relative to the `BASE_FOLDER`.
+
+=== Setting up  DNS
 
 Assuming you are setting up an Nextcloud Server under `nextcloud.becheftigt.de`
 you have to change the DNS-entry to point to the IP-address (A-Record) of your Server.
