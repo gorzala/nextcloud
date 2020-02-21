@@ -12,6 +12,7 @@ services:
       #- "--certificatesresolvers.mytlschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
       - "--certificatesresolvers.mytlschallenge.acme.email=marc@becheftigt.de"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+    restart: always
     ports:
       - "443:443"
       - "8080:8080"
@@ -38,6 +39,7 @@ services:
       - "traefik.http.middlewares.nextcloud.headers.customresponseheaders.Strict-Transport-Security=max-age=15552000; includeSubDomains"
     depends_on:
       - mysql
+      - traefik
   mysql:
     image: mariadb:latest
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
