@@ -2,7 +2,6 @@ version: "3"
 services:
   traefik:
     image: "traefik:v2.0.0-rc3"
-    container_name: "traefik"
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
@@ -25,8 +24,6 @@ services:
     environment:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
-    links:
-      - mysql
     restart: always
     volumes: 
       - ./nextcloud-core:/var/www/html
@@ -38,9 +35,9 @@ services:
       - "traefik.http.routers.nextcloud.rule=Host(`cloud.becheftigt.de`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
       - "traefik.http.routers.nextcloud.tls.certresolver=mytlschallenge"
+      - "traefik.http.middlewares.nextcloud.headers.customresponseheaders.Strict-Transport-Security=max-age=15552000; includeSubDomains"
     depends_on:
       - mysql
-
   mysql:
     image: mariadb:latest
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
