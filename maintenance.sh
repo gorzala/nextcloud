@@ -5,6 +5,7 @@ source .env
 
 display_usage() {
   echo "--backup for backup"
+  echo "--update for update"
 }
 
 turn_on_maintainance() {
@@ -15,6 +16,24 @@ turn_on_maintainance() {
 turn_off_maintainance() {
   echo "Turning off maintainance"
   docker exec --user www-data nextcloud_nextcloud_1 php occ maintenance:mode --off
+}
+
+update() {
+  # following
+  # https://docs.nextcloud.com/server/18/admin_manual/maintenance/manual_upgrade.html
+  # core
+  cp "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/.htaccess "$BASE_FOLDER"/update/
+  cd "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/
+  rm -rvf ./*
+  cd "$BASE_FOLDER"/update/nextcloud/
+  cp -av ./* "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/
+  rm -rvf "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/config/*
+  cp -av "$BASE_FOLDER"/update/.htaccess "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/
+  chown -Rv www-data:www-data "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/
+  cd "$BASE_FOLDER"
+  find "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/ -type d -exec chmod 750 {} \;
+  find "$BASE_FOLDER"/"$NEXTCLOUD_CORE"/ -type f -exec chmod 640 {} \;
+
 }
 
 backup() {
@@ -67,6 +86,8 @@ if [[ $# -lt 1 || "$1" = "-h" || "$1" = "--help" ]]; then
 	exit 0
 elif [[ "$1" = "--backup" ]]; then
   backup
+elif [[ ""$1"" = "--update" ]]; then
+  update
 fi
 
 
