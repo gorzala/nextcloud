@@ -1,3 +1,4 @@
+# Author: Marc Gorzala
 version: "3"
 services:
   traefik:
