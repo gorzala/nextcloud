@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Marc Gorzala
-# Iam using this script on freshly created servers of my
+# I am using this script on a freshly created servers of my
 # cloud provider to install something like the following
 #
 # * git
@@ -9,15 +9,14 @@
 # * docker-compose
 # just everything to enable me to start the nextcloud compose project
 #
-# You can have this script as a guid what you have to do installing the 
-# needed tools.
+# You can use this script as a guide what you have to install.
 # You can even give the script a try to and invoke it on a virgin
 # debian based machine.
 # If you are lucky, fine! If not, just reproduce what this script 
 # is intended to do.
 
 
-# 1) Update package-database and upgrade base system
+# 1) Update package-database and upgrade the base system
 sudo apt -y update
 sudo apt -y dist-upgrade
 
@@ -26,7 +25,7 @@ sudo curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 rm get-docker.sh
 
-# 3) Install docker compose
+# 3) Install docker-compose
 sudo apt -y install python3
 sudo apt -y install python3-setuptools
 sudo apt -y install python3-pip

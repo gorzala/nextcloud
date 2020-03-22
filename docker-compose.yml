@@ -2,10 +2,9 @@
 version: "3"
 services:
   traefik:
-    image: "traefik:v2.0.0-rc3"
+    image: "traefik:v2.2"
     command:
       - "--log.level=DEBUG"
-      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.websecure.address=:443"
@@ -16,7 +15,6 @@ services:
     restart: always
     ports:
       - "443:443"
-      - "8080:8080"
     volumes:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -26,7 +24,7 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
     restart: always
-    volumes: 
+    volumes:
       - ./nextcloud-core:/var/www/html
       - ./nextcloud-apps:/var/www/html/custom_apps
       - /mnt/nextcloud-data/:/var/www/html/data
@@ -55,6 +53,7 @@ services:
     restart: always
     environment:
       - domain=cloud\\.becheftigt\\.de
+      - DONT_GEN_SSL_CERT=YES
       - extra_params=--o:ssl.enable=false --o:ssl.termination=true
     depends_on:
       - traefik
