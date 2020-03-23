@@ -43,20 +43,20 @@ services:
       - mysql
       - traefik
   mysql:
-    image: mariadb:latest
+    image: ${MYSQL_IMAGE}
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
-      - ./nextcloud-mysql:/var/lib/mysql
+      - ${MYSQL_VOLUMES}:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_PASSWORD
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
   collabora:
-    image: collabora/code
+    image: ${COLLABORA_IMAGE}
     restart: always
     environment:
-      - domain=cloud\\.becheftigt\\.de
+      - domain=${COLLABORA_DOMAIN}
       - DONT_GEN_SSL_CERT=YES
       - extra_params=--o:ssl.enable=false --o:ssl.termination=true
     depends_on:
@@ -65,7 +65,7 @@ services:
       - MKNOD
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.collabora.rule=Host(`collabora.becheftigt.de`)"
+      - "traefik.http.routers.collabora.rule=Host(`${COLLABORA_HOST}`)"
       - "traefik.http.routers.collabora.entrypoints=websecure"
       - "traefik.http.routers.collabora.tls.certresolver=mytlschallenge"
 
