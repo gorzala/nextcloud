@@ -56,8 +56,6 @@ services:
   collabora:
     image: ${COLLABORA_IMAGE}
     restart: always
-    volumes:
-      - ${COLLABORA_VOLUMES_CONFIG}:/etc/loolwsd
     environment:
       - domain=${COLLABORA_DOMAIN}
       - DONT_GEN_SSL_CERT=YES
