@@ -2,36 +2,40 @@
 version: "3"
 services:
   traefik:
-    image: "traefik:v2.2"
+    image: ${TRAEFIK_IMAGES}
     command:
-      - "--log.level=DEBUG"
+      - "--log.level=${TRAEFIK_LOG_LEVEL}"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
       #- "--certificatesresolvers.mytlschallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.mytlschallenge.acme.email=marc@becheftigt.de"
+      - "--certificatesresolvers.mytlschallenge.acme.email=${ACME_MAIL}"
       - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     restart: always
     ports:
       - "443:443"
     volumes:
-      - "./letsencrypt:/letsencrypt"
+      - "${VOLUMES_LETSENCRYPT}:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
   nextcloud:
-    image: nextcloud
+    image: ${NEXTCLOUD_IMAGE}
     environment:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
+      - MYSQL_HOST=mysql
+      - MYSQL_PASSWORD
+      - NEXTCLOUD_ADMIN_USER
+      - NEXTCLOUD_ADMIN_PASSWORD
     restart: always
     volumes:
-      - ./nextcloud-core:/var/www/html
-      - ./nextcloud-apps:/var/www/html/custom_apps
-      - /mnt/nextcloud-data/:/var/www/html/data
-      - ./nextcloud-config:/var/www/html/config
+      - ${NEXTCLOUD_VOLUMES_CORE}:/var/www/html
+      - ${NEXTCLOUD_VOLUMES_APPS}:/var/www/html/custom_apps
+      - ${NEXTCLOUD_VOLUMES_DATA}:/var/www/html/data
+      - ${NEXTCLOUD_VOLUMES_CONFIG}:/var/www/html/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nextcloud.rule=Host(`cloud.becheftigt.de`)"
+      - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOSTNAME}`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
       - "traefik.http.routers.nextcloud.tls.certresolver=mytlschallenge"
       - "traefik.http.middlewares.nextcloud.headers.customresponseheaders.Strict-Transport-Security=max-age=15552000; includeSubDomains"
